@@ -1,0 +1,88 @@
+#include<stdio.h>
+
+char s[100000];
+char f[100],temp;
+int cases,min1=0,min2=0,ptr=0,link_=0;
+int min3,sum1=0,sum[100]={0},min[100],min_ptr=-1,sum_ptr=0,out=0;
+
+int find_min(void)
+{
+    int lower=min[0];
+    for(int i=1;i<min_ptr;i++)
+    {
+        if( lower > min[i])
+        {
+            lower = min[i];
+        }
+    }
+    return lower;
+}
+
+int main()
+{
+    printf("Enter number of cases: ");
+    scanf("%d",&cases);
+    for(int i=0;i<cases;i++)
+    {
+        printf("Enter string S: ");
+        scanf("%s",s);
+        fflush(stdin);
+        printf("Enter string F: ");
+        scanf("%s",f);
+        
+        while(f[link_]!='\0')
+        {
+            while(s[ptr]!='\0')
+            {
+                min1=0;min2=0;
+                
+                //for going right to the character
+                temp = s[ptr];
+                for(int j=0;j<26;j++)
+                {
+                    if( temp==f[link_] )
+                    {
+                        break;
+                    }
+                    min1++;
+                    temp++;
+                }
+                
+                //for going left to the character
+                temp = s[ptr];
+                for(int j=0;j<26;j++)
+                {
+                    if(temp==f[link_])
+                    {
+                        break;
+                    }
+                    min2++;
+                    temp--;
+                }
+                if( min1 < min2 || min2==min1)
+                {
+                    min3 = min1;
+                }
+                else if( min1 > min2)
+                {
+                    min3 = min2;
+                }
+                sum1 = sum1 + min3;
+                min3=0;
+                ptr++;
+            }
+            link_++;
+        }
+        min_ptr++;
+        min[min_ptr] = sum1;
+        sum_ptr++;
+        sum[sum_ptr] = sum[sum_ptr - 1] + find_min();
+        for(int i=0;i<=sum_ptr;i++)
+        {
+            out = out + sum[i];
+        }
+        printf("Case #%d: %d\n",cases,out);
+    }
+    return 0;
+}
+ 
