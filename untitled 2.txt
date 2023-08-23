@@ -1,0 +1,120 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+struct team_role
+{
+    char contributors_name[20];
+    int no_of_skills;
+    char having_skills[5][20];
+    int skill_level[100];
+};
+
+struct project
+{
+    char project_name[20];
+    int contributors_need;
+    char skills_need[100][20];
+    int skill_level_need[100];
+};
+
+void output(FILE *fo, int no_projects, struct team_role x[], struct  project y[], int step)
+{
+    if(step!=no_projects)
+    {
+        fprintf(fo,"%d\n",no_projects);
+        fprintf(fo,"%s\n",y[step].project_name);
+        step++;
+        output(fo,no_projects,x,y,step);
+    }
+}
+void team_assigen(int no_projects,int no_contributors, struct team_role x[], struct  project y[])
+{
+    int loc_skill=0, loc_contributor=0;
+    int busy[100],ptr=0;
+    for(int i=0;i<no_projects;i++)
+    {
+        for(int j=0;j<no_contributors;j++)
+        {
+            for(int t=0;t<100;t++)
+            {
+                if(strcmp(y[i].skills_need[j],x[j].having_skills[t])==0 && y[i].skill_level_need[j]<=x[j].skill_level[t])
+                {
+                    busy[ptr]=j;
+                    ptr++;
+                    loc_skill=t;
+                    x[j].skill_level[t]++;
+                    break;
+                }
+                else if(strcmp(y[i].skills_need[j],x[j].having_skills[t])==0 && y[i].skill_level_need[j]==(x[j].skill_level[t]+1))
+                {
+                    busy[ptr]=j;
+                    ptr++;
+                    loc_skill=t;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void file_read(FILE *fp, struct team_role x[], struct  project y[], int *no_projects, int *no_contributors)
+{
+    
+    fscanf(fp,"%d",no_contributors);
+    fseek(fp,1,SEEK_CUR);
+    fscanf(fp,"%d",no_projects);
+
+    for(int i=0;i<*no_contributors;i++)
+    {
+        fscanf(fp,"%s",x[i].contributors_name);
+        fseek(fp,1,SEEK_CUR);
+        fscanf(fp,"%d",&x[i].no_of_skills);
+        for(int j=0;j<x[i].no_of_skills;j++) //having_skill and skill_level is linked
+        {
+            fscanf(fp,"%s",&x[i].having_skills[j][20]);
+            fseek(fp,1,SEEK_CUR);
+            fscanf(fp,"%d",&x[i].skill_level[j]);
+        }
+    }
+    
+    for(int i=0;i<*no_projects;i++)
+    {
+        fscanf(fp,"%s",y[i].project_name);
+        fseek(fp,16,SEEK_CUR);
+        fscanf(fp,"%d",&y[i].contributors_need);
+        for(int j=0;j<y[i].contributors_need;j++)
+        {
+            fscanf(fp,"%s",&y[i].skills_need[j][20]);
+            fseek(fp,1,SEEK_CUR);
+            fscanf(fp,"%d",&y[i].skill_level_need[j]);
+        }
+    }
+    fclose(fp);
+    team_assigen(*no_projects,*no_contributors,x,y);
+}
+
+int main()
+{
+    FILE *fp=NULL,*fo=NULL;
+    fp=fopen("/Users/rahulverma/desktop/googleHashcode/a_an_example.in.txt","r");
+    fp=fopen("/Users/rahulverma/desktop/googleHashcode/output.txt","w");
+    if(fp==NULL || fo==NULL)
+    {
+        printf("unable to open file");
+        exit(0);
+    }
+
+    int no_projects=0;
+    int no_contributors=0;
+    
+    struct team_role x[100000];
+    struct project y[100000];
+
+    file_read(fp,x,y,&no_projects,&no_contributors);
+    
+    int step=0;
+    output(fo,no_projects,x,y,step);
+    fclose(fo);
+    return 0;
+}
